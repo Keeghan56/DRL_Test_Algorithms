@@ -65,24 +65,22 @@ for epoch in range(num_epochs):
                
         #Select action
         action = agent.choose_action(state)
-        #action = np.mean(y_train.values)*action*2 + np.std(y_train.values)*2
+        action = np.mean(y_train.values)*action*2 + np.std(y_train.values)*2
         #d = np.array(y_train.max())-np.array(y_train.min())
-        d = 250 - 50 #Hard coded max and minimum range of the spooling motor
-        action = ((action+0.4)/0.75)*d + np.array(y_train.min())
-        #print('max', y_train.max(), 'min', y_train.min())
-        #input()
+        #d = 250 - 50 Hard coded max and minimum range of the spooling motor
+        #action = ((action+0.4)/0.75)*d + np.array(y_train.min())
 
         if action < 15:
             action = np.array([action[0]+100])
         elif action > 300:
             action = np.array([action[0]-100])
-        
+
         #Observe new state
         if counter+1< X_train.shape[0]:
             new_state = X_train.iloc[counter+1].values
         else:
             new_state = np.array([X_train.mean[0],X_train.mean[1]])
-       
+
         #Calculate Error 
         if counter + 1 < len(y_train):
             error = int(y_train.iloc[counter+1]) - int(action) #rpm - predicted rpm
@@ -106,14 +104,14 @@ for epoch in range(num_epochs):
         agent.learn()
 
         score = -reward
-        
+
         if counter +1 < len(y_train):
             rpms.append(y_train.iloc[counter+1])
             predictions.append(action)
 
         print("Count|", counter, "|epoch|", epoch, "/", num_epochs, "|action|", action, "action_raw", agent.choose_action(state), "|RPM at t+1|",int(y_train.iloc[counter+1]), "|error", error)
         counter += 1
-        
+
     score_history.append(score)
     print('epoch ', epoch, 'Score %.2f' % score,
               'trailing 5 data points avg %.3f' % np.mean(score_history[-100:]))
